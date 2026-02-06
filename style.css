@@ -1,0 +1,28 @@
+body { font-family: Arial, Helvetica, sans-serif; background:#f3f6fb; margin:0; }
+.header { background:#0b3a6f; color:#fff; padding:14px; text-align:center; font-weight:bold; }
+.container { max-width:820px; margin:24px auto; background:#fff; border:1px solid #dfe6f1; border-radius:6px; box-shadow:0 6px 16px rgba(0,0,0,.08); }
+.content { padding:20px; }
+.sub { text-align:center; color:#475569; font-size:13px; margin-bottom:16px; }
+
+.form-row { display:grid; grid-template-columns:160px 1fr; gap:10px; margin-bottom:12px; align-items:center; }
+label { font-size:13px; color:#1f2937; }
+input { padding:8px 10px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px; width:100%; }
+input:focus { border-color:#2563eb; outline:none; }
+
+.btn { background:#2563eb; color:#fff; border:none; border-radius:4px; padding:8px 14px; cursor:pointer; font-weight:bold; }
+.btn.secondary { background:#64748b; }
+
+.error { color:#dc2626; font-size:13px; margin-top:8px; text-align:center; }
+.lock-msg { color:#b45309; font-size:13px; margin-top:6px; text-align:center; }
+
+.box { border:1px solid #e5e7eb; border-radius:4px; margin-top:14px; overflow:hidden; }
+.box h3 { margin:0; padding:8px 12px; background:#eef2ff; border-bottom:1px solid #e5e7eb; font-size:14px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+td, th { padding:8px 10px; border-bottom:1px solid #e5e7eb; }
+th { background:#f8fafc; text-align:left; }
+
+.pass { color:#15803d; font-weight:bold; }
+.fail { color:#b91c1c; font-weight:bold; }
+.note { font-size:12px; color:#64748b; padding:6px 10px; }
+
+.footer { text-align:center; font-size:12px; color:#64748b; padding:10px 0 16px; }
