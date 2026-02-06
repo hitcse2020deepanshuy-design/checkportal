@@ -2,7 +2,7 @@
 const CUTOFF = 18;  
 
 const SECTIONAL_CUTOFF = {
-  vocab: 5,   // out of 10
+  vocab: 7,   // out of 10
   ca: 7       // out of 20
 };
 
@@ -107,3 +107,4 @@ function logout() {
   document.getElementById("error").textContent = "";
   document.getElementById("lockMsg").textContent = "";
 }
+
