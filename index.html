@@ -10,25 +10,17 @@
   <div class="header">🏫 Deepanshu Yadav – Online Result Portal</div>
 
   <div class="container">
+    <!-- LOGIN -->
     <div class="content" id="loginCard">
       <div class="sub">Enter Roll Number, Password & DOB</div>
-      <div class="form-row">
-        <label>Roll Number</label>
-        <input type="text" id="roll" />
-      </div>
-      <div class="form-row">
-        <label>Password</label>
-        <input type="password" id="password" />
-      </div>
-      <div class="form-row">
-        <label>DOB (DD-MM-YYYY)</label>
-        <input type="text" id="dob" placeholder="05-07-2000" />
-      </div>
-
+      <div class="form-row"><label>Roll Number</label><input type="text" id="roll" /></div>
+      <div class="form-row"><label>Password</label><input type="password" id="password" /></div>
+      <div class="form-row"><label>DOB (DD-MM-YYYY)</label><input type="text" id="dob" placeholder="05-07-2000" /></div>
       <button class="btn" onclick="login()">Submit</button>
       <div id="error" class="error"></div>
     </div>
 
+    <!-- RESULT -->
     <div class="content" id="resultCard" style="display:none;">
       <div class="sub">Result Details</div>
 
@@ -36,7 +28,7 @@
         <h3>Candidate Details</h3>
         <table>
           <tr><th>Name</th><td id="name"></td></tr>
-          <tr><th>Roll No</th><td id="rollShow"></td></tr>
+          <tr><th>Roll Number</th><td id="rollShow"></td></tr>
           <tr><th>Rank</th><td id="rank"></td></tr>
         </table>
       </div>
@@ -57,21 +49,50 @@
         <h3>Overall Result</h3>
         <table>
           <tr><th>Total Marks</th><td id="total"></td></tr>
-          <tr><th>Overall Cut-off</th><td id="overallCutoff"></td></tr>
+          <tr><th>Overall Cut-off</th><td>112 / 200</td></tr>
           <tr><th>Status</th><td id="status"></td></tr>
         </table>
       </div>
 
-      <div class="box" id="disqBox" style="display:none;">
-        <h3>❌ Reason for Disqualification</h3>
-        <ul id="disqReasons"></ul>
-      </div>
-
+      <!-- Performance -->
       <div class="box">
-        <h3>🏆 Top Performers</h3>
-        <ul id="top3"></ul>
+        <h3>📊 Section-wise Performance</h3>
+        <div class="perf">
+          <div>The Hindu Editorial <span id="bar-hindu-val"></span></div><div class="bar"><div id="bar-hindu" class="bar-fill"></div></div>
+          <div>Current Affairs <span id="bar-ca-val"></span></div><div class="bar"><div id="bar-ca" class="bar-fill"></div></div>
+          <div>Descriptive Writing <span id="bar-desc-val"></span></div><div class="bar"><div id="bar-desc" class="bar-fill"></div></div>
+          <div>Weekly Hindu <span id="bar-weeklyH-val"></span></div><div class="bar"><div id="bar-weeklyH" class="bar-fill"></div></div>
+          <div>Weekly CA <span id="bar-weeklyCA-val"></span></div><div class="bar"><div id="bar-weeklyCA" class="bar-fill"></div></div>
+        </div>
       </div>
 
+      <!-- Cutoff Compare -->
+      <div class="box">
+        <h3>⚖️ Cut-off Comparison</h3>
+        <ul class="compare">
+          <li>📘 Hindu: <b id="cmp-hindu"></b></li>
+          <li>📰 CA: <b id="cmp-ca"></b></li>
+          <li>✍️ Descriptive: <b id="cmp-desc"></b></li>
+          <li>🔥 Weekly Hindu: <b id="cmp-weeklyH"></b></li>
+          <li>🌍 Weekly CA: <b id="cmp-weeklyCA"></b></li>
+          <li>🎯 Overall: <b id="cmp-overall"></b></li>
+        </ul>
+      </div>
+
+      <!-- Accuracy -->
+      <div class="box">
+        <h3>🎯 Accuracy & Attempt Analysis</h3>
+        <table>
+          <tr><th>Attempted</th><td id="attempted"></td></tr>
+          <tr><th>Correct</th><td id="correct"></td></tr>
+          <tr><th>Wrong</th><td id="wrong"></td></tr>
+          <tr><th>Accuracy</th><td id="accuracy"></td></tr>
+        </table>
+      </div>
+
+      <div class="box motivation" id="motivationBox"></div>
+
+      <!-- PDF footer -->
       <div class="pdf-footer">
         <div class="left">
           <img id="qrCode" alt="QR Code" />
@@ -87,13 +108,14 @@
         </div>
       </div>
 
-      <button class="btn secondary" onclick="downloadScorecard()">📥 Download PDF</button>
+      <button class="btn secondary" onclick="downloadScorecard()">📥 Download Scorecard (PDF)</button>
       <button class="btn secondary" onclick="logout()">Logout</button>
     </div>
 
-    <div class="footer">© Deepanshu Yadav</div>
+    <div class="footer">© Deepanshu Yadav | All rights reserved</div>
   </div>
 
+  <canvas id="confetti"></canvas>
   <script src="script.js"></script>
 </body>
 </html>
