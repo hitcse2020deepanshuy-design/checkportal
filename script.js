@@ -1,24 +1,60 @@
 const SECTIONAL_CUTOFF = { hindu: 8, ca: 8, desc: 12, weeklyH: 24, weeklyCA: 28 };
 const OVERALL_CUTOFF = 112;
 
-// 🔗 Your published Google Sheets CSV URL
+// 🔗 Your Google Sheets (converted to CSV endpoint)
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTWSnMdtYLF1mr4mYcxKzqAoANXhO-hSwWWHKuYWIx1VMaF-3tkiEQ1HAxYhB6C3LJZEYJTm6I5UZgm/pub?output=csv";
 
-let USERS = {}; // Will be loaded from sheet
+let USERS = {};
+let LAST_LOADED_AT = null;
 
-// 🚀 Fetch data from Google Sheets CSV
+// 🧠 Robust CSV parser (handles commas & quotes)
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let cur = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (ch === '"' && inQuotes && next === '"') {
+      cur += '"'; i++;
+    } else if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      row.push(cur); cur = "";
+    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+      if (cur || row.length) {
+        row.push(cur);
+        rows.push(row.map(v => v.trim()));
+        row = []; cur = "";
+      }
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur || row.length) {
+    row.push(cur);
+    rows.push(row.map(v => v.trim()));
+  }
+  return rows.filter(r => r.length);
+}
+
+// 📥 Fetch users from Google Sheets CSV (no cache)
 async function fetchUsersFromSheet() {
-  const response = await fetch(SHEET_URL, { cache: "no-store" });
-  const text = await response.text();
+  const url = SHEET_URL + "&t=" + Date.now(); // cache buster
+  const res = await fetch(url, { cache: "no-store" });
+  const text = await res.text();
 
-  const rows = text.trim().split("\n").map(r => r.split(","));
+  const rows = parseCSV(text);
   const headers = rows.shift().map(h => h.trim());
 
   const users = {};
   rows.forEach(cols => {
     const obj = {};
     headers.forEach((h, i) => {
-      obj[h] = (cols[i] || "").trim();
+      obj[h] = (cols[i] || "").replace(/^"|"$/g, "").trim();
     });
 
     if (!obj.roll) return;
@@ -35,20 +71,28 @@ async function fetchUsersFromSheet() {
     };
   });
 
+  LAST_LOADED_AT = new Date();
+  console.log("🔄 Users refreshed at", LAST_LOADED_AT.toLocaleTimeString(), users);
   return users;
 }
 
-// Load CSV data on page load
-window.addEventListener("DOMContentLoaded", async () => {
+// 🔁 Auto-load on page load + refresh every 10 seconds
+async function loadUsers() {
   try {
     USERS = await fetchUsersFromSheet();
-    console.log("✅ Loaded users from CSV:", USERS);
   } catch (err) {
     console.error("❌ Failed to load sheet:", err);
-    document.getElementById("error").textContent = "⚠️ Could not load data. Try again later.";
+    const errBox = document.getElementById("error");
+    if (errBox) errBox.textContent = "⚠️ Unable to load latest data. Retrying...";
   }
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  await loadUsers();
+  setInterval(loadUsers, 10000); // refresh every 10 seconds
 });
 
+// 🧮 Rank calculation
 function calculateRanks() {
   return Object.entries(USERS)
     .map(([roll, u]) => ({
@@ -56,9 +100,10 @@ function calculateRanks() {
       name: u.name,
       total: (u.hindu||0) + (u.ca||0) + (u.desc||0) + (u.weeklyH||0) + (u.weeklyCA||0)
     }))
-    .sort((a,b)=>b.total - a.total);
+    .sort((a, b) => b.total - a.total);
 }
 
+// 🔐 Login
 function login() {
   const roll = document.getElementById("roll").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -66,19 +111,18 @@ function login() {
   const err = document.getElementById("error");
 
   if (!USERS || Object.keys(USERS).length === 0) {
-    err.textContent = "⏳ Data loading... try again in a moment.";
+    err.textContent = "⏳ Loading latest data… please try again in a moment.";
     return;
   }
 
   if (!USERS[roll] || USERS[roll].password !== password || USERS[roll].dob !== dob) {
-    err.textContent = "❌ Invalid credentials. Please check Roll No, Password & DOB.";
+    err.textContent = "❌ Invalid credentials. Check Roll No, Password & DOB.";
     return;
   }
 
   const u = USERS[roll];
   const total = (u.hindu||0) + (u.ca||0) + (u.desc||0) + (u.weeklyH||0) + (u.weeklyCA||0);
 
-  // Ranks
   const ranks = calculateRanks();
   const myRank = ranks.findIndex(r => r.roll === roll) + 1;
 
@@ -93,15 +137,14 @@ function login() {
   document.getElementById("weeklyCA").textContent = `${u.weeklyCA}/70`;
   document.getElementById("total").textContent = total;
 
-  // Qualified or Not
   const statusEl = document.getElementById("status");
   statusEl.textContent = total >= OVERALL_CUTOFF ? "Qualified" : "Not Qualified";
   statusEl.className = total >= OVERALL_CUTOFF ? "pass" : "fail";
 
-  // Top 3 performers
-  const top3List = calculateRanks().slice(0,3);
-  document.getElementById("top3").innerHTML = top3List.map((t,i) => {
-    const medal = ["🥇 Gold Performer","🥈 Silver Performer","🥉 Bronze Performer"][i];
+  // 🏆 Top 3
+  const top3 = calculateRanks().slice(0, 3);
+  document.getElementById("top3").innerHTML = top3.map((t, i) => {
+    const medal = ["🥇 Gold Performer", "🥈 Silver Performer", "🥉 Bronze Performer"][i];
     return `<li>${medal} – <b>${t.name}</b> (${t.total}/200)</li>`;
   }).join("");
 
@@ -109,6 +152,7 @@ function login() {
   document.getElementById("resultCard").style.display = "block";
 }
 
+// 🖨️ Download scorecard
 function downloadScorecard() {
   window.print();
 }
@@ -116,5 +160,5 @@ function downloadScorecard() {
 function logout() {
   document.getElementById("loginCard").style.display = "block";
   document.getElementById("resultCard").style.display = "none";
-  ["roll","password","dob"].forEach(id => document.getElementById(id).value = "");
+  ["roll", "password", "dob"].forEach(id => document.getElementById(id).value = "");
 }
