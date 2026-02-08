@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Deepanshu Yaduvanshi | Result Portal</title>
+  <title>Deepanshu Yadav | Result Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="header">🏫 Deepanshu Yaduvanshi – Official Result Portal</div>
+  <div class="header">🏫 Deepanshu Yadav – Official Result Portal</div>
 
   <div class="container">
-    <div class="content" id="loginCard">
-      <div class="sub">Enter Roll Number, Password & DOB</div>
+    <div class="content card" id="loginCard">
+      <h2 class="center">Student Login</h2>
+      <p class="sub">Enter Roll Number, Password & DOB</p>
 
       <div class="form-row">
         <label>Roll Number</label>
@@ -22,28 +23,30 @@
         <input type="password" id="password" />
       </div>
       <div class="form-row">
-        <label>Date of Birth (DD-MM-YYYY)</label>
+        <label>DOB (DD-MM-YYYY)</label>
         <input type="text" id="dob" placeholder="e.g. 05-07-2000" />
       </div>
 
-      <button class="btn" onclick="login()">View Result</button>
+      <button class="btn full" onclick="login()">View Result</button>
       <div id="error" class="error"></div>
+
+      <div class="company">Company Name: <b>Deepanshu Yadav</b></div>
     </div>
 
     <div class="content" id="resultCard" style="display:none;">
       <h2 class="center">🎓 Result Summary</h2>
 
       <div class="grid">
-        <div class="box">
-          <h3>Candidate Details</h3>
+        <div class="box accent-blue">
+          <h3>Candidate</h3>
           <p><b>Name:</b> <span id="name"></span></p>
-          <p><b>Roll No:</b> <span id="rollShow"></span></p>
+          <p><b>Roll:</b> <span id="rollShow"></span></p>
           <p><b>Rank:</b> <span id="rank"></span></p>
         </div>
 
-        <div class="box">
-          <h3>Overall Performance</h3>
-          <p><b>Total Score:</b> <span id="total"></span> / 200</p>
+        <div class="box accent-green">
+          <h3>Overall</h3>
+          <p><b>Total:</b> <span id="total"></span> / 200</p>
           <p><b>Overall Cut-off:</b> 112 / 200</p>
           <p><b>Status:</b> <span id="status"></span></p>
         </div>
@@ -52,36 +55,21 @@
       <div class="box">
         <h3>Section-wise Marks</h3>
         <table>
-          <tr><th>Subject</th><th>Marks</th><th>Cut-off</th><th>Status</th></tr>
-          <tr><td>The Hindu Editorial Quiz</td><td id="hindu"></td><td>8/20</td><td id="hinduS"></td></tr>
-          <tr><td>Current Affairs Quiz</td><td id="ca"></td><td>8/20</td><td id="caS"></td></tr>
-          <tr><td>Descriptive Writing Quiz</td><td id="desc"></td><td>12/30</td><td id="descS"></td></tr>
-          <tr><td>The Hindu Editorial (Weekly)</td><td id="weeklyH"></td><td>24/60</td><td id="weeklyHS"></td></tr>
-          <tr><td>Current Affairs (Weekly)</td><td id="weeklyCA"></td><td>28/70</td><td id="weeklyCAS"></td></tr>
+          <tr><th>Subject</th><th>Marks</th><th>Cut-off</th></tr>
+          <tr><td>The Hindu Editorial</td><td id="hindu"></td><td>8 / 20</td></tr>
+          <tr><td>Current Affairs</td><td id="ca"></td><td>8 / 20</td></tr>
+          <tr><td>Descriptive Writing</td><td id="desc"></td><td>12 / 30</td></tr>
+          <tr><td>The Hindu (Weekly)</td><td id="weeklyH"></td><td>24 / 60</td></tr>
+          <tr><td>Current Affairs (Weekly)</td><td id="weeklyCA"></td><td>28 / 70</td></tr>
         </table>
-      </div>
-
-      <div class="box">
-        <h3>Category-wise Cut-off</h3>
-        <ul class="cutoff-list">
-          <li>GEN: 112</li>
-          <li>OBC: 105</li>
-          <li>EWS: 102</li>
-          <li>SC: 95</li>
-          <li>ST: 90</li>
-        </ul>
       </div>
 
       <div class="box highlight">
         <h3>🏆 Top Performers</h3>
-        <ol>
-          <li>🥇 <b>Deepanshu Yadav</b> – Gold Performer</li>
-          <li>🥈 <b>Jyoti Yadav</b> – Silver Performer</li>
-          <li>🥉 <b>Nikita Soni</b> – Bronze Performer</li>
-        </ol>
+        <ol id="top3"></ol>
       </div>
 
-      <button class="btn" onclick="downloadScorecard()">📥 Download Scorecard (PDF)</button>
+      <button class="btn" onclick="downloadScorecard()">📥 Download Scorecard</button>
       <button class="btn secondary" onclick="logout()">Logout</button>
 
       <div class="signature">
@@ -90,7 +78,7 @@
       </div>
     </div>
 
-    <div class="footer">© Deepanshu Yaduvanshi | All rights reserved</div>
+    <div class="footer">© Deepanshu Yadav | All rights reserved</div>
   </div>
 
   <script src="script.js"></script>
