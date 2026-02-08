@@ -1,12 +1,10 @@
-// Default fallbacks (used if settings not found)
-let TOTALS = { hindu:20, ca:20, desc:30, weeklyH:60, weeklyCA:70, overall:200 };
-let CUTOFFS = { hindu:8, ca:8, desc:12, weeklyH:24, weeklyCA:28, overall:112 };
+const TOTALS = { hindu:20, ca:20, desc:30, weeklyH:60, weeklyCA:70, overall:200 };
+const CUTOFFS = { hindu:8, ca:8, desc:12, weeklyH:24, weeklyCA:28, overall:112 };
 
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTWSnMdtYLF1mr4mYcxKzqAoANXhO-hSwWWHKuYWIx1VMaF-3tkiEQ1HAxYhB6C3LJZEYJTm6I5UZgm/pub?output=csv";
 
 let USERS = {};
 
-// CSV parser
 function parseCSV(text) {
   const rows = [];
   let row=[], cur="", inQuotes=false;
@@ -23,56 +21,29 @@ function parseCSV(text) {
   return rows.filter(r=>r.length);
 }
 
-async function fetchDataFromSheet() {
-  const res = await fetch(SHEET_URL + "&t=" + Date.now(), { cache: "no-store" });
-  const text = await res.text();
-  const rows = parseCSV(text);
-  const headers = rows.shift().map(h=>h.toLowerCase());
-
-  const users = {};
-  rows.forEach(cols => {
-    const obj = {};
-    headers.forEach((h,i)=>obj[h]=(cols[i]||"").replace(/^"|"$/g,""));
-
-    if (obj.roll) {
-      users[obj.roll] = {
-        password: obj.password,
-        dob: obj.dob,
-        name: obj.name,
-        hindu: +obj.hindu||0,
-        ca: +obj.ca||0,
-        desc: +obj.desc||0,
-        weeklyH: +obj.weeklyh||0,
-        weeklyCA: +obj.weeklyca||0
-      };
-    }
-
-    // SETTINGS rows
-    if (obj.key && obj.value) {
-      const k = obj.key.toLowerCase();
-      const v = +obj.value;
-      if (k.endsWith("_total")) TOTALS[k.replace("_total","")] = v;
-      if (k.endsWith("_cutoff")) CUTOFFS[k.replace("_cutoff","")] = v;
-      if (k === "overall_total") TOTALS.overall = v;
-      if (k === "overall_cutoff") CUTOFFS.overall = v;
-    }
-  });
-
-  USERS = users;
-}
-
-async function loadData() {
-  await fetchDataFromSheet();
-  document.getElementById("overallCutoff").textContent = CUTOFFS.overall;
-  document.getElementById("overallTotal").textContent = TOTALS.overall;
+async function loadUsers(){
+  try {
+    const res = await fetch(SHEET_URL + "&t=" + Date.now(), { cache: "no-store" });
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const headers = rows.shift().map(h=>h.toLowerCase());
+    const users = {};
+    rows.forEach(cols=>{
+      const o={}; headers.forEach((h,i)=>o[h]=(cols[i]||"").replace(/^"|"$/g,""));
+      if (!o.roll) return;
+      users[o.roll]={password:o.password,dob:o.dob,name:o.name,hindu:+o.hindu||0,ca:+o.ca||0,desc:+o.desc||0,weeklyH:+o.weeklyh||0,weeklyCA:+o.weeklyca||0};
+    });
+    USERS = users;
+  } catch (e) {
+    console.error("Failed to load sheet:", e);
+  }
 }
 
 window.addEventListener("DOMContentLoaded", async()=>{
-  await loadData();
-  setInterval(loadData, 10000);
+  await loadUsers();
+  setInterval(loadUsers, 10000);
 });
 
-// Helpers
 function starWithTooltip(score, cutoff){
   return score < cutoff ? `<span class="star" title="Sectional cut-off not cleared">*</span>${score}` : `${score}`;
 }
@@ -104,10 +75,22 @@ function updatePdfExtras(){
 }
 
 function login(){
-  const r=roll.value.trim(), p=password.value.trim(), d=dob.value.trim();
-  if (!USERS[r] || USERS[r].password!==p || USERS[r].dob!==d){
-    error.textContent="❌ Invalid credentials."; return;
+  const r=document.getElementById("roll").value.trim();
+  const p=document.getElementById("password").value.trim();
+  const d=document.getElementById("dob").value.trim();
+  const err=document.getElementById("error");
+
+  if (!Object.keys(USERS).length) {
+    err.textContent = "⚠️ Data not loaded yet. Please wait a few seconds and try again.";
+    return;
   }
+
+  if (!USERS[r] || USERS[r].password!==p || USERS[r].dob!==d){
+    err.textContent="❌ Invalid credentials.";
+    return;
+  }
+
+  err.textContent="";
 
   const u=USERS[r];
   const total=u.hindu+u.ca+u.desc+u.weeklyH+u.weeklyCA;
@@ -115,11 +98,11 @@ function login(){
   const hinduPass=u.hindu>=CUTOFFS.hindu, caPass=u.ca>=CUTOFFS.ca, descPass=u.desc>=CUTOFFS.desc,
         wHPass=u.weeklyH>=CUTOFFS.weeklyH, wCAPass=u.weeklyCA>=CUTOFFS.weeklyCA;
 
-  hindu.innerHTML = `${starWithTooltip(u.hindu,CUTOFFS.hindu)}/${TOTALS.hindu}`;
-  ca.innerHTML = `${starWithTooltip(u.ca,CUTOFFS.ca)}/${TOTALS.ca}`;
-  desc.innerHTML = `${starWithTooltip(u.desc,CUTOFFS.desc)}/${TOTALS.desc}`;
-  weeklyH.innerHTML = `${starWithTooltip(u.weeklyH,CUTOFFS.weeklyH)}/${TOTALS.weeklyH}`;
-  weeklyCA.innerHTML = `${starWithTooltip(u.weeklyCA,CUTOFFS.weeklyCA)}/${TOTALS.weeklyCA}`;
+  document.getElementById("hindu").innerHTML = `${starWithTooltip(u.hindu,CUTOFFS.hindu)}/${TOTALS.hindu}`;
+  document.getElementById("ca").innerHTML = `${starWithTooltip(u.ca,CUTOFFS.ca)}/${TOTALS.ca}`;
+  document.getElementById("desc").innerHTML = `${starWithTooltip(u.desc,CUTOFFS.desc)}/${TOTALS.desc}`;
+  document.getElementById("weeklyH").innerHTML = `${starWithTooltip(u.weeklyH,CUTOFFS.weeklyH)}/${TOTALS.weeklyH}`;
+  document.getElementById("weeklyCA").innerHTML = `${starWithTooltip(u.weeklyCA,CUTOFFS.weeklyCA)}/${TOTALS.weeklyCA}`;
 
   setBadge("hinduBadge",hinduPass); setBadge("caBadge",caPass); setBadge("descBadge",descPass);
   setBadge("weeklyHBadge",wHPass); setBadge("weeklyCABadge",wCAPass);
@@ -129,17 +112,29 @@ function login(){
 
   const finalPass = hinduPass && caPass && descPass && wHPass && wCAPass && total>=CUTOFFS.overall;
 
-  name.textContent=u.name; rollShow.textContent=r; totalEl.textContent=total;
-  status.textContent=finalPass?"Qualified":"Not Qualified";
-  status.className=finalPass?"pass":"fail";
+  document.getElementById("name").textContent=u.name;
+  document.getElementById("rollShow").textContent=r;
+  document.getElementById("total").textContent=total;
+
+  const statusEl=document.getElementById("status");
+  statusEl.textContent=finalPass?"Qualified":"Not Qualified";
+  statusEl.className=finalPass?"pass":"fail";
 
   const ranks=calculateRanksWithQualification();
-  rank.textContent = "#" + (ranks.findIndex(x=>x.roll===r)+1);
-  top3.innerHTML = ranks.slice(0,3).map((t,i)=>`<li>${["🥇 Gold Performer","🥈 Silver Performer","🥉 Bronze Performer"][i]} – <b>${t.name}</b> (${t.total}/${TOTALS.overall})</li>`).join("");
+  document.getElementById("rank").textContent = "#" + (ranks.findIndex(x=>x.roll===r)+1);
+
+  document.getElementById("top3").innerHTML = ranks.slice(0,3).map((t,i)=>
+    `<li>${["🥇 Gold Performer","🥈 Silver Performer","🥉 Bronze Performer"][i]} – <b>${t.name}</b> (${t.total}/${TOTALS.overall})</li>`
+  ).join("");
 
   updatePdfExtras();
-  loginCard.style.display="none"; resultCard.style.display="block";
+  document.getElementById("loginCard").style.display="none";
+  document.getElementById("resultCard").style.display="block";
 }
 
 function downloadScorecard(){ window.print(); }
-function logout(){ loginCard.style.display="block"; resultCard.style.display="none"; }
+function logout(){
+  document.getElementById("loginCard").style.display="block";
+  document.getElementById("resultCard").style.display="none";
+  ["roll","password","dob"].forEach(id=>document.getElementById(id).value="");
+}
