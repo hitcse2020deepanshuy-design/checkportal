@@ -25,10 +25,10 @@ const USERS = {
   "8303906": { password: "83039006", dob:"27-07-2003", name:"Adweta Sen",
     vocab:{scored:null,total:10}, ca:{scored:null,total:20} },
 
-  "7008899": { password: "70088999", dob:"12-04-2001", name:"Shivani Jha",
+  "7878107": { password: "78781007", dob:"02-02-2002", name:"Shivani Jha",
     vocab:{scored:6,total:10}, ca:{scored:10,total:20} },
 
-  "7099911": { password: "70999111", dob:"03-09-2002", name:"Shweta Yadav",
+  "8534808": { password: "85348008", dob:"06-06-2002", name:"Shweta Yadav",
     vocab:{scored:8,total:10}, ca:{scored:13,total:20} }
 };
 
@@ -107,4 +107,5 @@ function logout() {
   document.getElementById("error").textContent = "";
   document.getElementById("lockMsg").textContent = "";
 }
+
 
