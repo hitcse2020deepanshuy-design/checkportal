@@ -1,6 +1,11 @@
-const ADMIN = { id: "admin", pass: "admin@123" };
+// ✅ Admin Credentials (As you specified)
+const ADMIN = {
+  id: "admin",
+  pass: "admin@123",
+  dob: "05-07-2000"
+};
 
-// IMPORTANT: Duplicate USERS here (frontend demo)
+// ✅ Demo USERS (Same structure as student portal)
 const USERS = {
   "9151701": { password: "91517001", dob:"05-07-2000", name:"Deepanshu Yadav", hindu:20, ca:20, desc:28, weeklyH:55, weeklyCA:62 },
   "8504002": { password: "85040002", dob:"25-11-2004", name:"Nikita Soni", hindu:18, ca:11, desc:18, weeklyH:42, weeklyCA:40 },
@@ -15,13 +20,15 @@ const USERS = {
 function adminLogin() {
   const id = document.getElementById("adminId").value.trim();
   const pass = document.getElementById("adminPass").value.trim();
+  const dob = document.getElementById("adminDob").value.trim();
   const err = document.getElementById("adminErr");
 
-  if (id === ADMIN.id && pass === ADMIN.pass) {
+  if (id === ADMIN.id && pass === ADMIN.pass && dob === ADMIN.dob) {
     document.getElementById("adminLogin").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
+    err.textContent = "";
   } else {
-    err.textContent = "❌ Invalid admin credentials.";
+    err.textContent = "❌ Invalid Admin Roll No, Password, or DOB.";
   }
 }
 
@@ -30,22 +37,30 @@ function saveMarks() {
   const msg = document.getElementById("saveMsg");
 
   if (!USERS[roll]) {
-    msg.textContent = "❌ Roll number not found.";
+    msg.textContent = "❌ Student roll number not found.";
     msg.className = "fail";
     return;
   }
 
+  // Update student DOB (optional)
+  const newDob = document.getElementById("a_dob").value.trim();
+  if (newDob) USERS[roll].dob = newDob;
+
+  // Update marks
   USERS[roll].hindu = +document.getElementById("a_hindu").value || 0;
   USERS[roll].ca = +document.getElementById("a_ca").value || 0;
   USERS[roll].desc = +document.getElementById("a_desc").value || 0;
   USERS[roll].weeklyH = +document.getElementById("a_weeklyH").value || 0;
   USERS[roll].weeklyCA = +document.getElementById("a_weeklyCA").value || 0;
 
-  msg.textContent = "✅ Marks saved successfully (demo only).";
+  msg.textContent = "✅ Student DOB & marks updated successfully (demo only).";
   msg.className = "pass";
 }
 
 function adminLogout() {
   document.getElementById("adminLogin").style.display = "block";
   document.getElementById("dashboard").style.display = "none";
+
+  // Clear admin fields
+  ["adminId","adminPass","adminDob"].forEach(id => document.getElementById(id).value = "");
 }
